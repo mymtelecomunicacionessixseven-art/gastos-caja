@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evolutivo mes a mes · Caja MyM</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page:#f9f9f7; --surface:#fcfcfb; --card:#ffffff; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+    --grid:#e1e0d9; --axis:#c3c2b7; --ring:rgba(11,11,11,.10); --hover:rgba(42,120,214,.07);
+    --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s7:#6250d6; --otros:#b5b4ad;
+    --bar:#2a78d6; --tip:#0b0b0b; --tip-ink:#f0efec;
+    --q1:#cde2fb; --q2:#9ec5f4; --q3:#6da7ec; --q4:#3987e5; --q5:#256abf; --q6:#184f95;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --page:#0d0d0d; --surface:#1a1a19; --card:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781;
+      --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10); --hover:rgba(57,135,229,.12);
+      --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s7:#9085e9; --otros:#5d5c57;
+      --bar:#3987e5; --tip:#f0efec; --tip-ink:#0b0b0b;
+      --q1:#184f95; --q2:#1c5cab; --q3:#256abf; --q4:#2a78d6; --q5:#5598e7; --q6:#86b6ef;
+    }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--page); color:var(--ink); }
+  header { padding:16px 22px 6px; display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; align-items:end; }
+  h1 { margin:0; font-size:20px; }
+  .sub { color:var(--ink2); font-size:12.5px; }
+  nav.dash { display:flex; gap:4px; }
+  nav.dash a { font-size:13px; padding:6px 12px; border-radius:16px; border:1px solid var(--ring); color:var(--ink); text-decoration:none; background:var(--card); }
+  nav.dash a.on { background:var(--ink); color:var(--page); border-color:var(--ink); }
+  .filtros { display:flex; flex-wrap:wrap; gap:8px; align-items:end; padding:10px 22px; background:var(--card); border-top:1px solid var(--ring); border-bottom:1px solid var(--ring); position:sticky; top:0; z-index:5; }
+  .filtros label { display:flex; flex-direction:column; font-size:11px; color:var(--ink2); gap:3px; }
+  input, select, button { font:inherit; font-size:13px; color:var(--ink); }
+  .filtros select { padding:5px 7px; border:1px solid var(--ring); border-radius:6px; background:var(--surface); }
+  button { padding:5px 10px; border:1px solid var(--ring); border-radius:6px; background:var(--surface); cursor:pointer; }
+  button:hover { border-color:var(--bar); }
+  button.prim { background:var(--bar); color:#fff; border-color:var(--bar); }
+  .seg { display:inline-flex; border:1px solid var(--ring); border-radius:7px; overflow:hidden; }
+  .seg button { border:0; border-radius:0; padding:5px 11px; font-size:13px; }
+  .seg button.on { background:var(--ink); color:var(--page); }
+  .seg button[data-c="OPEX"].on { background:var(--s1); color:#fff; }
+  .seg button[data-c="CAPEX"].on { background:var(--s7); color:#fff; }
+  .seg button[data-c="EXTERNO"].on { background:var(--s2); color:#fff; }
+  .tipos { display:flex; flex-wrap:wrap; gap:6px; padding:10px 22px 0; align-items:center; }
+  .tipos .et { font-size:12px; color:var(--ink2); margin-right:4px; }
+  .tchip { display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:3px 10px; border-radius:14px; border:1px solid var(--ring); background:var(--card); cursor:pointer; user-select:none; }
+  .tchip i { width:9px; height:9px; border-radius:2px; }
+  .tchip.on { background:var(--ink); color:var(--page); border-color:var(--ink); }
+  .tchip.accion { color:var(--ink2); border-style:dashed; }
+  main { padding:12px 22px 40px; }
+  .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:10px; margin-bottom:12px; }
+  .kpi { background:var(--card); border:1px solid var(--ring); border-radius:10px; padding:11px 14px; }
+  .kpi .v { font-size:22px; font-weight:650; }
+  .kpi .l { font-size:12px; color:var(--ink2); }
+  .kpi .d { font-size:12.5px; margin-top:2px; font-variant-numeric:tabular-nums; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(460px,1fr)); gap:12px; margin-bottom:12px; }
+  .card { background:var(--card); border:1px solid var(--ring); border-radius:10px; padding:14px 16px; min-width:0; }
+  .card.ancho { grid-column:1 / -1; }
+  .card h2 { font-size:14px; margin:0; font-weight:650; }
+  .card .h { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px; flex-wrap:wrap; }
+  .ayuda { font-size:11.5px; color:var(--muted); }
+  svg { display:block; width:100%; overflow:visible; }
+  svg text { font-size:11px; fill:var(--muted); font-variant-numeric:tabular-nums; }
+  svg .lbl { fill:var(--ink2); font-weight:600; }
+  svg .lbl2 { fill:var(--ink); font-weight:650; font-size:12px; }
+  .hit { fill:transparent; cursor:pointer; }
+  .hit:hover { fill:var(--hover); }
+  .leyenda { display:flex; flex-wrap:wrap; gap:4px 14px; font-size:12px; color:var(--ink2); margin-bottom:6px; }
+  .leyenda span { display:inline-flex; align-items:center; gap:5px; }
+  .leyenda i { width:10px; height:10px; border-radius:2px; display:inline-block; }
+  #tip { position:fixed; z-index:20; pointer-events:none; background:var(--tip); color:var(--tip-ink); font-size:12px; padding:7px 9px; border-radius:7px; max-width:300px; display:none; box-shadow:0 4px 14px rgba(0,0,0,.18); }
+  #tip .r { display:flex; justify-content:space-between; gap:14px; font-variant-numeric:tabular-nums; }
+  .tabla { overflow:auto; }
+  table { border-collapse:collapse; width:100%; }
+  th, td { padding:7px 10px; border-bottom:1px solid var(--grid); text-align:left; white-space:nowrap; }
+  th { font-size:11px; text-transform:uppercase; letter-spacing:.03em; color:var(--ink2); background:var(--surface); }
+  td.n, th.n { text-align:right; font-variant-numeric:tabular-nums; }
+  tr.tot td { font-weight:650; background:var(--surface); }
+  .heat td.c { text-align:right; font-variant-numeric:tabular-nums; font-size:12.5px; border-left:2px solid var(--card); }
+  .heat tr.click { cursor:pointer; }
+  .heat tr.click:hover td:first-child { text-decoration:underline; }
+  .heat tr.on td:first-child { font-weight:700; }
+  .heat .sw { display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:7px; }
+  .var { font-size:12px; }
+  .parcial { font-size:10.5px; color:var(--muted); display:block; font-weight:400; text-transform:none; letter-spacing:0; }
+  .pill { font-size:11px; font-weight:650; padding:1px 7px; border-radius:10px; color:#fff; }
+  .pill.OPEX { background:var(--s1); } .pill.CAPEX { background:var(--s7); } .pill.EXTERNO { background:var(--s2); }
+  .nota { color:var(--muted); font-size:12px; margin:8px 2px 0; }
+  .vacio { padding:30px; text-align:center; color:var(--muted); }
+  @media (max-width: 800px) {
+    .filtros { position:static; }
+    header, .filtros, main, .tipos { padding-left:12px; padding-right:12px; }
+    .grid { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Evolutivo mes a mes · Caja MyM</h1>
+    <div class="sub" id="fuente"></div>
+  </div>
+  <nav class="dash"><a href="gastos-caja.html">Gastos por tipo</a><a href="evolutivo-caja.html" class="on">Evolutivo mes a mes</a></nav>
+</header>
+
+<div class="filtros">
+  <label>Clase de gasto<span class="seg" id="fClase"><button data-c="" class="on">Todo</button><button data-c="OPEX">OPEX</button><button data-c="CAPEX">CAPEX</button><button data-c="EXTERNO">Externo</button></span></label>
+  <label>Desde<select id="fDesde"></select></label>
+  <label>Hasta<select id="fHasta"></select></label>
+  <label>Estado<select id="fEstado"><option value="">Todos (sin anulados)</option><option>Pagado</option><option>Aprobado</option><option>Pendiente</option></select></label>
+  <label>Imputable a gasto corriente<select id="fImp"><option value="">Todos</option><option value="si">Sí, imputable</option><option value="no">No imputable</option></select></label>
+  <label>Moneda<select id="fMon"><option>PEN</option><option>USD</option></select></label>
+  <button id="bLimpiar">Limpiar</button>
+  <button id="bCsv" class="prim">Descargar Excel (CSV)</button>
+</div>
+<div class="tipos" id="tipos"></div>
+
+<main>
+  <div class="kpis" id="kpis"></div>
+
+  <div class="grid">
+    <section class="card ancho">
+      <div class="h"><h2 id="tTotal">Gasto total por mes</h2><span class="ayuda">Encima de cada barra: variación contra el mes anterior · línea punteada: promedio de los meses cerrados</span></div>
+      <div class="leyenda" id="leyTotal"></div>
+      <div id="gTotal"></div>
+    </section>
+
+    <section class="card">
+      <div class="h"><h2>OPEX, CAPEX y Externo mes a mes</h2></div>
+      <div class="leyenda" id="leyClase"></div>
+      <div id="gClase"></div>
+    </section>
+
+    <section class="card">
+      <div class="h"><h2>Acumulado del periodo</h2><span class="ayuda">Suma mes a mes</span></div>
+      <div id="gAcum"></div>
+    </section>
+
+    <section class="card ancho">
+      <div class="h"><h2>Por tipo de gasto · mes a mes</h2><span class="ayuda">Más oscuro = más gasto · clic en un tipo para filtrar los gráficos</span></div>
+      <div class="tabla" id="gHeat"></div>
+    </section>
+
+    <section class="card ancho">
+      <div class="h"><h2>Resumen mensual</h2></div>
+      <div class="tabla" id="gResumen"></div>
+      <p class="nota" id="nota"></p>
+    </section>
+  </div>
+</main>
+<div id="tip"></div>
+
+<script src="cifrado.js"></script>
+<script type="text/x-diferido" data-src="nucleo-caja.js"></script>
+<script type="text/x-diferido">
+// ---------- Utilidades ----------
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const simb = () => $('fMon').value === 'USD' ? 'US$ ' : 'S/ ';
+const fmt = n => simb() + n.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmt0 = n => simb() + Math.round(n).toLocaleString('es-PE');
+const fmtK = n => Math.abs(n) >= 1000 ? (n / 1000).toLocaleString('es-PE', { maximumFractionDigits: 1 }) + 'k' : String(Math.round(n));
+const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const nomMes = ym => { const [y, m] = ym.split('-'); return MESES[+m - 1] + ' ' + y; };
+const mesCorto = ym => MESES[+ym.slice(5, 7) - 1].slice(0, 3) + ' ' + ym.slice(2, 4);
+const suma = arr => arr.reduce((s, d) => s + d.monto, 0);
+const agrupar = (arr, key) => arr.reduce((m, d) => { const k = key(d); (m[k] = m[k] || []).push(d); return m; }, {});
+const pct = (a, b) => b ? (a - b) / b * 100 : null;
+const difS = v => (v >= 0 ? '+' : '−') + fmt0(Math.abs(v));
+const fmtVar = v => v === null ? '—' : (v > 0 ? '▲ +' : v < 0 ? '▼ ' : '') + v.toFixed(0) + '%';
+function pasos(max, n) {
+  if (max <= 0) return [0, 1];
+  const bruto = max / n, p = Math.pow(10, Math.floor(Math.log10(bruto)));
+  const paso = [1, 2, 2.5, 5, 10].map(m => m * p).find(s => s >= bruto);
+  const out = []; for (let v = 0; v <= max + paso * 0.001 || out.length < 2; v += paso) out.push(v);
+  if (out[out.length - 1] < max) out.push(out[out.length - 1] + paso);
+  return out;
+}
+function barra(x, y, w, h, r) {
+  r = Math.max(0, Math.min(r, w / 2, h));
+  return `M${x},${y + h}V${y + r}Q${x},${y} ${x + r},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h}Z`;
+}
+
+// ---------- Meses del periodo y mes en curso ----------
+const TODOS_MESES = (() => {
+  const fs = DATOS.map(d => d.fecha).sort(); const out = [];
+  let [y, m] = fs[0].split('-').map(Number); const [yf, mf] = fs[fs.length - 1].split('-').map(Number);
+  while (y < yf || (y === yf && m <= mf)) { out.push(y + '-' + String(m).padStart(2, '0')); if (++m > 12) { m = 1; y++; } }
+  return out;
+})();
+const MES_CURSO = EXTRAIDO.slice(0, 7);
+const DIAS_MES_CURSO = new Date(+EXTRAIDO.slice(0, 4), +EXTRAIDO.slice(5, 7), 0).getDate();
+const DIAS_CORRIDOS = Math.max(1, +EXTRAIDO.slice(8, 10) - 1);   // datos hasta el día anterior a la extracción
+const PRIMER_DIA = DATOS.map(d => d.fecha).sort()[0];
+const esParcial = m => m === MES_CURSO;
+
+// ---------- Filtros ----------
+let clase = '', selTipos = new Set(), TIPS = [];
+function mesesSel() { const d = $('fDesde').value, h = $('fHasta').value; return TODOS_MESES.filter(m => m >= d && m <= h); }
+function filtrados(sinTipo) {
+  const mon = $('fMon').value, est = $('fEstado').value, imp = $('fImp').value, meses = new Set(mesesSel());
+  return DATOS.filter(d => d.moneda === mon &&
+    (est ? d.estado === est : d.estado !== 'Anulado') &&
+    meses.has(d.fecha.slice(0, 7)) &&
+    (!clase || claseDe(d) === clase) &&
+    (!imp || (imp === 'si') === esImp(d)) &&
+    (sinTipo || !selTipos.size || selTipos.has(catDe(d))));
+}
+
+function pintar() {
+  TIPS = [];
+  document.querySelectorAll('#fClase button').forEach(b => b.classList.toggle('on', b.dataset.c === clase));
+  const F = filtrados(), meses = mesesSel();
+  pintarTipos();
+  const porMes = meses.map(m => { const a = F.filter(d => d.fecha.startsWith(m)); return { m, a, t: suma(a) }; });
+  porMes.forEach((p, i) => { p.ant = i ? porMes[i - 1].t : null; p.var = i ? pct(p.t, p.ant) : null; });
+  const foco = [clase ? nomClase(clase) : '', selTipos.size ? [...selTipos].map(nomCat).join(' + ') : ''].filter(Boolean).join(' · ');
+  $('tTotal').textContent = 'Gasto total por mes' + (foco ? ' · ' + foco : '');
+  pintarKpis(porMes);
+  pintarTotal(porMes);
+  pintarClase(porMes);
+  pintarAcum(porMes);
+  pintarHeat(filtrados(true), meses);
+  pintarResumen(porMes);
+}
+
+function pintarTipos() {
+  const base = filtrados(true), g = agrupar(base, catDe);
+  const lista = Object.keys(g).sort((a, b) => suma(g[b]) - suma(g[a]));
+  $('tipos').innerHTML = `<span class="et">Tipos de gasto:</span><span class="tchip accion ${selTipos.size ? '' : 'on'}" data-tipo="">Todos</span>` +
+    lista.map(k => `<span class="tchip ${selTipos.has(k) ? 'on' : ''}" data-tipo="${k}"><i style="background:${colorDe(k)}"></i>${esc(nomCat(k))}</span>`).join('');
+}
+
+function pintarKpis(P) {
+  const cerrados = P.filter(p => !esParcial(p.m));
+  const ult = cerrados[cerrados.length - 1], curso = P.find(p => esParcial(p.m));
+  const prom = cerrados.length ? cerrados.reduce((s, p) => s + p.t, 0) / cerrados.length : 0;
+  const alto = [...P].sort((a, b) => b.t - a.t)[0];
+  const tot = P.reduce((s, p) => s + p.t, 0);
+  const proy = curso ? curso.t / DIAS_CORRIDOS * DIAS_MES_CURSO : 0;
+  let h = '';
+  if (ult) h += `<div class="kpi"><div class="l">Último mes cerrado · ${nomMes(ult.m)}</div><div class="v">${fmt0(ult.t)}</div><div class="d">${ult.ant !== null ? fmtVar(ult.var) + ' vs ' + MESES[+P[P.indexOf(ult) - 1].m.slice(5) - 1] + ' (' + fmt0(ult.ant) + ')' : 'primer mes del periodo'}</div></div>`;
+  if (curso) h += `<div class="kpi"><div class="l">${nomMes(curso.m)} a la fecha (${DIAS_CORRIDOS} de ${DIAS_MES_CURSO} días)</div><div class="v">${fmt0(curso.t)}</div><div class="d">Proyección al cierre: <b>${fmt0(proy)}</b>${ult ? ' · ' + fmtVar(pct(proy, ult.t)) + ' vs ' + MESES[+ult.m.slice(5) - 1] : ''}</div></div>`;
+  h += `<div class="kpi"><div class="l">Promedio mensual (meses cerrados)</div><div class="v">${fmt0(prom)}</div><div class="d">${cerrados.length} meses</div></div>`;
+  if (alto) h += `<div class="kpi"><div class="l">Mes con más gasto</div><div class="v">${fmt0(alto.t)}</div><div class="d">${nomMes(alto.m)}${esParcial(alto.m) ? ' (en curso)' : ''}</div></div>`;
+  h += `<div class="kpi"><div class="l">Acumulado del periodo</div><div class="v">${fmt0(tot)}</div><div class="d">${P.reduce((s, p) => s + p.a.length, 0)} gastos · ${P.length} meses</div></div>`;
+  $('kpis').innerHTML = h;
+}
+
+// Ejes comunes
+function marco(W, H, m, ymax, ticks) {
+  const y = v => m.t + (H - m.t - m.b) - v / ymax * (H - m.t - m.b);
+  let s = '';
+  ticks.forEach(t => { s += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(t)}" y2="${y(t)}" stroke="var(--grid)"/><text x="${m.l - 6}" y="${y(t) + 4}" text-anchor="end">${fmtK(t)}</text>`; });
+  return { s, y };
+}
+function tipMes(p, extra) {
+  const porT = Object.entries(agrupar(p.a, catDe)).map(([k, a]) => [k, suma(a)]).sort((a, b) => b[1] - a[1]);
+  return `<b>${nomMes(p.m)}${esParcial(p.m) ? ' (en curso)' : ''}</b><div class="r"><span>Total</span><b>${fmt(p.t)}</b></div><div class="r"><span>Gastos</span><span>${p.a.length}</span></div>` +
+    (p.ant !== null ? `<div class="r"><span>vs mes anterior</span><span>${fmtVar(p.var)} (${difS(p.t - p.ant)})</span></div>` : '') + (extra || '') +
+    porT.slice(0, 4).map(([k, v]) => `<div class="r"><span>· ${esc(nomCat(k))}</span><span>${fmt0(v)}</span></div>`).join('');
+}
+
+function pintarTotal(P) {
+  const el = $('gTotal');
+  if (!P.some(p => p.t)) { el.innerHTML = '<div class="vacio">Sin datos con estos filtros</div>'; $('leyTotal').innerHTML = ''; return; }
+  const curso = P.find(p => esParcial(p.m)), proy = curso ? curso.t / DIAS_CORRIDOS * DIAS_MES_CURSO : 0;
+  $('leyTotal').innerHTML = `<span><i style="background:var(--bar)"></i>Gasto real</span>` + (curso ? `<span><i style="background:transparent;border:1.5px dashed var(--bar)"></i>Proyección ${MESES[+curso.m.slice(5) - 1]} al ritmo actual</span>` : '');
+  const W = Math.max(340, el.clientWidth), H = 280, m = { t: 30, r: 10, b: 28, l: 48 };
+  const ticks = pasos(Math.max(...P.map(p => p.t), proy), 4), ymax = ticks[ticks.length - 1];
+  const { s: ejes, y } = marco(W, H, m, ymax, ticks);
+  const bw = (W - m.l - m.r) / P.length, w = Math.min(90, bw * 0.55);
+  const cerrados = P.filter(p => !esParcial(p.m)), prom = cerrados.length ? cerrados.reduce((a, p) => a + p.t, 0) / cerrados.length : 0;
+  let s = `<svg viewBox="0 0 ${W} ${H}" height="${H}" role="img" aria-label="Gasto total por mes">` + ejes;
+  P.forEach((p, i) => {
+    const x = m.l + i * bw + (bw - w) / 2;
+    if (esParcial(p.m) && proy > p.t) s += `<path d="${barra(x, y(proy), w, y(p.t) - y(proy), 4)}" style="fill:none;stroke:var(--bar);stroke-width:1.5;stroke-dasharray:4 3"/>`;
+    if (p.t > 0) s += `<path d="${barra(x, y(p.t), w, y(0) - y(p.t), esParcial(p.m) && proy > p.t ? 0 : 4)}" style="fill:var(--bar)"/>`;
+    const top = esParcial(p.m) ? Math.max(p.t, proy) : p.t;
+    s += `<text class="lbl2" x="${x + w / 2}" y="${y(top) - 16}" text-anchor="middle">${fmtK(p.t)}</text>`;
+    if (p.var !== null) s += `<text class="lbl" x="${x + w / 2}" y="${y(top) - 4}" text-anchor="middle">${fmtVar(p.var)}${esParcial(p.m) ? '*' : ''}</text>`;
+    s += `<text x="${x + w / 2}" y="${H - 8}" text-anchor="middle">${mesCorto(p.m)}${esParcial(p.m) ? ' *' : ''}</text>`;
+    TIPS.push(tipMes(p, esParcial(p.m) ? `<div class="r"><span>Proyección al cierre</span><span>${fmt0(proy)}</span></div>` : ''));
+    s += `<rect class="hit" x="${m.l + i * bw}" y="${m.t}" width="${bw}" height="${H - m.t - m.b}" data-t="${TIPS.length - 1}"/>`;
+  });
+  if (prom) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(prom)}" y2="${y(prom)}" stroke="var(--ink2)" stroke-dasharray="4 4"/><text class="lbl" x="${m.l + 4}" y="${y(prom) - 5}">promedio ${fmtK(prom)}</text>`;
+  s += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(0)}" y2="${y(0)}" stroke="var(--axis)"/></svg>`;
+  el.innerHTML = s;
+}
+
+const COL_CLASE = { OPEX: 'var(--s1)', CAPEX: 'var(--s7)', EXTERNO: 'var(--s2)' };
+function pintarClase(P) {
+  const el = $('gClase');
+  const presentes = CLASES.filter(c => P.some(p => p.a.some(d => claseDe(d) === c)));
+  $('leyClase').innerHTML = presentes.map(c => `<span><i style="background:${COL_CLASE[c]}"></i>${nomClase(c)}</span>`).join('');
+  if (!presentes.length) { el.innerHTML = '<div class="vacio">Sin datos</div>'; return; }
+  const W = Math.max(320, el.clientWidth), H = 250, m = { t: 22, r: 6, b: 28, l: 46 };
+  const ticks = pasos(Math.max(...P.map(p => p.t)), 4), ymax = ticks[ticks.length - 1];
+  const { s: ejes, y } = marco(W, H, m, ymax, ticks);
+  const bw = (W - m.l - m.r) / P.length, w = Math.min(64, bw * 0.6);
+  let s = `<svg viewBox="0 0 ${W} ${H}" height="${H}" role="img" aria-label="Clases por mes">` + ejes;
+  P.forEach((p, i) => {
+    const x = m.l + i * bw + (bw - w) / 2;
+    const segs = presentes.map(c => [c, suma(p.a.filter(d => claseDe(d) === c))]).filter(z => z[1]);
+    let acum = 0;
+    segs.forEach(([c, v], j) => {
+      const y0 = y(acum), y1 = y(acum + v), gap = j > 0 ? 2 : 0;
+      const d = j === segs.length - 1 ? barra(x, y1, w, Math.max(0, y0 - y1 - gap), 4) : `M${x},${y0 - gap}V${y1}H${x + w}V${y0 - gap}Z`;
+      TIPS.push(`<b>${nomMes(p.m)}</b><div class="r"><span>${nomClase(c)}</span><b>${fmt(v)}</b></div><div class="r"><span>Del mes</span><span>${(v / p.t * 100).toFixed(1)}%</span></div><div class="r"><span>Total del mes</span><span>${fmt0(p.t)}</span></div>`);
+      s += `<path d="${d}" style="fill:${COL_CLASE[c]}" data-t="${TIPS.length - 1}"/>`;
+      acum += v;
+    });
+    if (p.t) s += `<text class="lbl" x="${x + w / 2}" y="${y(p.t) - 6}" text-anchor="middle">${fmtK(p.t)}</text>`;
+    s += `<text x="${x + w / 2}" y="${H - 8}" text-anchor="middle">${mesCorto(p.m)}</text>`;
+  });
+  s += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(0)}" y2="${y(0)}" stroke="var(--axis)"/></svg>`;
+  el.innerHTML = s;
+}
+
+function pintarAcum(P) {
+  const el = $('gAcum');
+  if (!P.some(p => p.t)) { el.innerHTML = '<div class="vacio">Sin datos</div>'; return; }
+  const W = Math.max(320, el.clientWidth), H = 250, m = { t: 22, r: 18, b: 28, l: 50 };
+  let ac = 0; const pts = P.map(p => (ac += p.t, { m: p.m, v: ac, t: p.t }));
+  const ticks = pasos(ac, 4), ymax = ticks[ticks.length - 1];
+  const { s: ejes, y } = marco(W, H, m, ymax, ticks);
+  const n = P.length, x = i => m.l + (n === 1 ? (W - m.l - m.r) / 2 : i * (W - m.l - m.r) / (n - 1));
+  let s = `<svg viewBox="0 0 ${W} ${H}" height="${H}" role="img" aria-label="Acumulado">` + ejes;
+  const linea = pts.map((p, i) => (i ? 'L' : 'M') + x(i) + ',' + y(p.v)).join('');
+  s += `<path d="${linea}L${x(n - 1)},${y(0)}L${x(0)},${y(0)}Z" style="fill:var(--bar);opacity:.10"/>`;
+  s += `<path d="${linea}" style="fill:none;stroke:var(--bar);stroke-width:2"/>`;
+  pts.forEach((p, i) => {
+    TIPS.push(`<b>${nomMes(p.m)}</b><div class="r"><span>Acumulado</span><b>${fmt(p.v)}</b></div><div class="r"><span>Gasto del mes</span><span>${fmt0(p.t)}</span></div>`);
+    s += `<circle cx="${x(i)}" cy="${y(p.v)}" r="4.5" style="fill:var(--bar);stroke:var(--card);stroke-width:2"/>`;
+    if (i === n - 1 || i === 0) s += `<text class="lbl" x="${x(i)}" y="${y(p.v) - 10}" text-anchor="${i === n - 1 && n > 1 ? 'end' : 'middle'}">${fmtK(p.v)}</text>`;
+    s += `<text x="${x(i)}" y="${H - 8}" text-anchor="middle">${mesCorto(p.m)}</text>`;
+    const ancho = n === 1 ? W - m.l - m.r : (W - m.l - m.r) / (n - 1);
+    s += `<rect class="hit" x="${x(i) - ancho / 2}" y="${m.t}" width="${ancho}" height="${H - m.t - m.b}" data-t="${TIPS.length - 1}"/>`;
+  });
+  s += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(0)}" y2="${y(0)}" stroke="var(--axis)"/></svg>`;
+  el.innerHTML = s;
+}
+
+// Mapa de calor tipo × mes (azul de claro a oscuro según el monto)
+function pintarHeat(F, meses) {
+  const el = $('gHeat'), g = agrupar(F, catDe);
+  const tipos = Object.keys(g).sort((a, b) => suma(g[b]) - suma(g[a]));
+  if (!tipos.length) { el.innerHTML = '<div class="vacio">Sin datos</div>'; return; }
+  const celda = (k, m) => suma(g[k].filter(d => d.fecha.startsWith(m)));
+  const max = Math.max(...tipos.flatMap(k => meses.map(m => celda(k, m))));
+  const tono = v => { if (!v) return ''; const i = Math.min(5, Math.floor(Math.sqrt(v / max) * 6)); return `background:var(--q${i + 1});color:${i >= 3 ? '#fff' : 'var(--ink)'}`; };
+  const cerr = meses.filter(m => !esParcial(m)), ult = cerr[cerr.length - 1], ant = cerr[cerr.length - 2];
+  const spark = vals => { const mx = Math.max(...vals) || 1, w = 70, h = 20, n = vals.length; const pts = vals.map((v, i) => `${n === 1 ? w / 2 : i * w / (n - 1)},${h - v / mx * h}`).join(' '); return `<svg viewBox="0 -2 ${w} ${h + 4}" width="${w}" height="${h + 4}" style="display:inline-block;vertical-align:middle"><polyline points="${pts}" style="fill:none;stroke:var(--bar);stroke-width:1.5"/></svg>`; };
+  let h = `<table class="heat"><thead><tr><th>Tipo de gasto</th>${meses.map(m => `<th class="n">${mesCorto(m)}${esParcial(m) ? '<span class="parcial">a la fecha</span>' : ''}</th>`).join('')}<th class="n">Total</th><th class="n">${ult && ant ? MESES[+ult.slice(5) - 1].slice(0, 3) + ' vs ' + MESES[+ant.slice(5) - 1].slice(0, 3) : 'Var.'}</th><th>Tendencia</th></tr></thead><tbody>`;
+  tipos.forEach(k => {
+    const vals = meses.map(m => celda(k, m)), t = suma(g[k]);
+    const v = ult && ant ? pct(celda(k, ult), celda(k, ant)) : null;
+    h += `<tr class="click ${selTipos.has(k) ? 'on' : ''}" data-tipo="${k}"><td><i class="sw" style="background:${colorDe(k)}"></i>${esc(nomCat(k))}</td>` +
+      vals.map((x, i) => { TIPS.push(`<b>${esc(nomCat(k))} · ${nomMes(meses[i])}</b><div class="r"><span>Monto</span><b>${fmt(x)}</b></div><div class="r"><span>Gastos</span><span>${g[k].filter(d => d.fecha.startsWith(meses[i])).length}</span></div>`); return `<td class="c" style="${tono(x)}" data-t="${TIPS.length - 1}">${x ? fmt0(x).replace(simb(), '') : '·'}</td>`; }).join('') +
+      `<td class="n"><b>${fmt0(t)}</b></td><td class="n var">${ult && ant && (celda(k, ult) || celda(k, ant)) ? (celda(k, ant) ? fmtVar(v) : 'nuevo') : '—'}</td><td>${spark(vals)}</td></tr>`;
+  });
+  const tm = meses.map(m => suma(F.filter(d => d.fecha.startsWith(m))));
+  h += `<tr class="tot"><td>Total</td>${tm.map(x => `<td class="n">${fmt0(x).replace(simb(), '')}</td>`).join('')}<td class="n">${fmt0(suma(F))}</td><td class="n var">${ult && ant ? fmtVar(pct(tm[meses.indexOf(ult)], tm[meses.indexOf(ant)])) : '—'}</td><td>${spark(tm)}</td></tr></tbody></table>`;
+  el.innerHTML = h;
+}
+
+function pintarResumen(P) {
+  let ac = 0;
+  const filas = P.map(p => {
+    ac += p.t;
+    const cl = c => suma(p.a.filter(d => claseDe(d) === c));
+    const dias = esParcial(p.m) ? DIAS_CORRIDOS : (p.m === PRIMER_DIA.slice(0, 7) ? new Date(+p.m.slice(0, 4), +p.m.slice(5), 0).getDate() - +PRIMER_DIA.slice(8) + 1 : new Date(+p.m.slice(0, 4), +p.m.slice(5), 0).getDate());
+    return `<tr><td>${nomMes(p.m)}${esParcial(p.m) ? ' <span class="parcial" style="display:inline">(a la fecha)</span>' : ''}</td><td class="n">${p.a.length}</td><td class="n"><b>${fmt(p.t)}</b></td>
+      <td class="n">${p.ant !== null ? difS(p.t - p.ant) : '—'}</td><td class="n var">${fmtVar(p.var)}</td>
+      <td class="n">${fmt0(cl('OPEX'))}</td><td class="n">${fmt0(cl('CAPEX'))}</td><td class="n">${fmt0(cl('EXTERNO'))}</td>
+      <td class="n">${fmt0(suma(p.a.filter(esImp)))}</td><td class="n">${fmt0(p.t / dias)}</td><td class="n">${fmt0(ac)}</td></tr>`;
+  }).join('');
+  const all = P.flatMap(p => p.a);
+  $('gResumen').innerHTML = `<table><thead><tr><th>Mes</th><th class="n">Gastos</th><th class="n">Total</th><th class="n">Var. S/</th><th class="n">Var. %</th><th class="n"><span class="pill OPEX">OPEX</span></th><th class="n"><span class="pill CAPEX">CAPEX</span></th><th class="n"><span class="pill EXTERNO">Externo</span></th><th class="n">Imputable</th><th class="n">Promedio/día</th><th class="n">Acumulado</th></tr></thead><tbody>${filas}` +
+    `<tr class="tot"><td>Total</td><td class="n">${all.length}</td><td class="n">${fmt(suma(all))}</td><td></td><td></td>${CLASES.map(c => `<td class="n">${fmt0(suma(all.filter(d => claseDe(d) === c)))}</td>`).join('')}<td class="n">${fmt0(suma(all.filter(esImp)))}</td><td></td><td></td></tr></tbody></table>`;
+  $('nota').innerHTML = `* ${nomMes(MES_CURSO)} va hasta el ${String(DIAS_CORRIDOS).padStart(2, '0')}/${MES_CURSO.slice(5)} (mes en curso); su variación compara un mes incompleto. ${nomMes(PRIMER_DIA.slice(0, 7))} empieza el ${PRIMER_DIA.split('-').reverse().join('/')}, cuando arrancan los registros. Las clasificaciones (tipo, OPEX/CAPEX/Externo, imputable) son las mismas que marcaste en «Gastos por tipo».`;
+}
+
+// ---------- Interacción ----------
+document.addEventListener('mousemove', e => {
+  const el = e.target.closest('[data-t]'), T = $('tip');
+  if (!el || !TIPS[el.dataset.t]) { T.style.display = 'none'; return; }
+  T.innerHTML = TIPS[el.dataset.t]; T.style.display = 'block';
+  const r = T.getBoundingClientRect();
+  let x = e.clientX + 14, y = e.clientY + 14;
+  if (x + r.width > innerWidth - 8) x = e.clientX - r.width - 14;
+  if (y + r.height > innerHeight - 8) y = e.clientY - r.height - 14;
+  T.style.left = Math.max(8, x) + 'px'; T.style.top = Math.max(8, y) + 'px';
+});
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-tipo]');
+  if (t) { const k = t.dataset.tipo; if (!k) selTipos.clear(); else if (selTipos.has(k)) selTipos.delete(k); else selTipos.add(k); pintar(); return; }
+  const c = e.target.closest('#fClase button[data-c]');
+  if (c) { clase = c.dataset.c; pintar(); }
+});
+['fDesde', 'fHasta', 'fEstado', 'fImp', 'fMon'].forEach(id => $(id).addEventListener('change', () => {
+  if ($('fDesde').value > $('fHasta').value) { if (id === 'fDesde') $('fHasta').value = $('fDesde').value; else $('fDesde').value = $('fHasta').value; }
+  pintar();
+}));
+$('bLimpiar').onclick = () => { clase = ''; selTipos.clear(); ['fEstado', 'fImp'].forEach(id => $(id).value = ''); $('fDesde').value = TODOS_MESES[0]; $('fHasta').value = TODOS_MESES[TODOS_MESES.length - 1]; pintar(); };
+$('bCsv').onclick = () => {
+  const F = filtrados(), meses = mesesSel(), g = agrupar(F, catDe);
+  const q = s => '"' + String(s).replace(/"/g, '""') + '"', n = v => v.toFixed(2).replace('.', ',');
+  const filas = [['Tipo de gasto', ...meses.map(nomMes), 'Total']];
+  Object.keys(g).sort((a, b) => suma(g[b]) - suma(g[a])).forEach(k => filas.push([nomCat(k), ...meses.map(m => n(suma(g[k].filter(d => d.fecha.startsWith(m))))), n(suma(g[k]))]));
+  CLASES.forEach(c => filas.push(['Subtotal ' + nomClase(c), ...meses.map(m => n(suma(F.filter(d => d.fecha.startsWith(m) && claseDe(d) === c)))), n(suma(F.filter(d => claseDe(d) === c)))]));
+  filas.push(['TOTAL', ...meses.map(m => n(suma(F.filter(d => d.fecha.startsWith(m))))), n(suma(F))]);
+  const blob = new Blob(['﻿' + filas.map(r => r.map(q).join(';')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'evolutivo-caja-mym.csv'; a.click();
+};
+let tRes; addEventListener('resize', () => { clearTimeout(tRes); tRes = setTimeout(pintar, 150); });
+// Si se reclasifica en el otro dashboard (otra pestaña), se actualiza aquí
+addEventListener('storage', e => {
+  if (!e.key || !e.key.startsWith('mym_caja_')) return;
+  manual = JSON.parse(localStorage.getItem(LS) || '{}');
+  claseManual = JSON.parse(localStorage.getItem(LS_CL) || '{}');
+  claseTipo = JSON.parse(localStorage.getItem(LS_CLT) || '{}');
+  imputable = JSON.parse(localStorage.getItem(LS_IMP) || '{}');
+  pintar();
+});
+
+const opcMes = TODOS_MESES.map(m => `<option value="${m}">${nomMes(m)}</option>`).join('');
+$('fDesde').innerHTML = opcMes; $('fHasta').innerHTML = opcMes;
+$('fDesde').value = TODOS_MESES[0]; $('fHasta').value = TODOS_MESES[TODOS_MESES.length - 1];
+$('fuente').textContent = `Fuente: Caja Qorihuata (solo lectura) · datos al ${EXTRAIDO.split('-').reverse().join('/')} · misma clasificación que «Gastos por tipo»`;
+pintar();
+</script>
+</body>
+</html>
